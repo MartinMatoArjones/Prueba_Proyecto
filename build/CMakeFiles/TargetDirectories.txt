@@ -1,3 +1,0 @@
-/home/alumno/Escritorio/Prueba_Proyecto/build/CMakeFiles/lambda.dir
-/home/alumno/Escritorio/Prueba_Proyecto/build/CMakeFiles/edit_cache.dir
-/home/alumno/Escritorio/Prueba_Proyecto/build/CMakeFiles/rebuild_cache.dir
