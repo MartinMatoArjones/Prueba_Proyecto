@@ -5,7 +5,30 @@
 #include <string>
 
 using namespace std;
+//--------------------------------------------------------------------------------VECTOR DE COORDENADAS ABSOLUTAS DEL CAMPO
+vector<pair<string, vp>> coordenadasABS = {
+        {"cornersupizq", {"-52.5","-34"}},
+        {"cornersupder", {"52.5","-34"}},
+        {"cornerinfizq", {"-52.5","34"}},
+        {"cornerinfder", {"52.5","34"}},
+        {"centrosup", {"0","-34"}},
+        {"centro", {"0","0"}},
+        {"centroinf", {"0","34"}},
+        {"areasupizq", {"-36","-20"}},
+        {"areacentroizq", {"-36","0"}},
+        {"areainfizq", {"-36","20"}},
+        {"areasupder", {"36","-20"}},
+        {"areacentroder", {"36","0"}},
+        {"areainfder", {"36","20"}},
+        {"portsupder", {"52.5","-7"}},
+        {"portcentroder",{"52.5","0"}},
+        {"portinfder", {"52.5","7"}},
+        {"portsupizq", {"-52.5","-7"}},
+        {"portcentroizq", {"-52.5","0"}},
+        {"portinfizq", {"-52.5","7"}}
+    };
 
+//------------------------------------------------------------------------------------------FUNCIONES
 vector<string> separarPalabras(const string &palabra)
 {
     int ncaracteres = palabra.size();
@@ -61,7 +84,7 @@ pair<string, string> buscarValores(const std::string &input, const std::string &
     return {"-1", "-1"};
 }
 
-
+//------------------------------------------------------------------------------------------CONTENEDOR DE COORDENADAS INSTANTANEAS DEL JUGADOR (SOLO LAS QUE VE)
 typedef pair<string,string> vp;
 struct visioncampo{
     vp cornersupizq; //flt
@@ -84,7 +107,7 @@ struct visioncampo{
     vp portcentroder; //fgrc
     vp portinfder; //fgrb
 };
-
+//------------------------------------------------------------------------------------------FUNCION QUE RELLENA EL CONTENEDOR EN CADA ITERACIÓN 
 void rellenaContenedor(visioncampo &container, const string &p) {
     vector<pair<string, vp*>> flagMap = {
         {"((f l t) ", &container.cornersupizq},
@@ -151,27 +174,6 @@ int main(){
     }
     */
 
-   vector<pair<string, vp>> coordenadasABS = {
-        {"cornersupizq", {"",""}},
-        {"cornersupder", },
-        {"cornerinfizq", },
-        {"cornerinfder", },
-        {"centrosup", },
-        {"centro", },
-        {"centroinf", },
-        {"areasupizq", },
-        {"areacentroizq", },
-        {"areainfizq", },
-        {"areasupder", },
-        {"areacentroder", },
-        {"areainfder", },
-        {"areasupder", },
-        {"portcentroder",},
-        {"portinfder", },
-        {"portsupizq", },
-        {"portcentroizq", },
-        {"portinfizq", }
-    };
 
     return 0;
 }
