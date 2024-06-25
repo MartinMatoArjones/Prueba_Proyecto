@@ -9,26 +9,26 @@ using namespace std;
 typedef pair<string,string> vp;
 //--------------------------------------------------------------------------------VECTOR DE COORDENADAS ABSOLUTAS DEL CAMPO
 vector<pair<string,vp>>coordenadasABS = {
-        {"cornersupizq", {"-52.5","-34"}},
-        {"cornersupder", {"52.5","-34"}},
-        {"cornerinfizq", {"-52.5","34"}},
-        {"cornerinfder", {"52.5","34"}},
+        // {"cornersupizq", {"-52.5","-34"}},
+        // {"cornersupder", {"52.5","-34"}},
+        // {"cornerinfizq", {"-52.5","34"}},
+        // {"cornerinfder", {"52.5","34"}},
         {"centrosup", {"0","-34"}},
         {"centro", {"0","0"}},
         {"centroinf", {"0","34"}},
-        {"areasupizq", {"-36","-20"}},
-        {"areacentroizq", {"-36","0"}},
-        {"areainfizq", {"-36","20"}},
-        {"areasupder", {"36","-20"}},
-        {"areacentroder", {"36","0"}},
-        {"areainfder", {"36","20"}},
+        // {"areasupizq", {"-36","-20"}},
+        // {"areacentroizq", {"-36","0"}},
+        // {"areainfizq", {"-36","20"}},
+        // {"areasupder", {"36","-20"}},
+        // {"areacentroder", {"36","0"}},
+        // {"areainfder", {"36","20"}},
         {"portsupder", {"52.5","-7"}},
         {"portcentroder",{"52.5","0"}},
         {"portinfder", {"52.5","7"}},
         {"portsupizq", {"-52.5","-7"}},
         {"portcentroizq", {"-52.5","0"}},
         {"portinfizq", {"-52.5","7"}},
-        //banda superior
+        // //banda superior
         {"((f t l 50) ",{"-50","-39"}},
         {"((f t l 40) ",{"-40","-39"}},
         {"((f t l 30) ",{"-30","-39"}},
@@ -56,7 +56,7 @@ vector<pair<string,vp>>coordenadasABS = {
         {"((f r b 30) ",{"57.5","30"}},
         {"((f r b 20) ",{"57.5","20"}},
         {"((f r b 10) ",{"57.5","10"}},
-        {"((f r) ",{"57.5","0"}},
+        {"((f r 0) ",{"57.5","0"}},
         {"((f r t 30) ",{"57.5","-30"}},
         {"((f r t 20) ",{"57.5","-20"}},
         {"((f r t 10) ",{"57.5","-10"}},
@@ -64,7 +64,7 @@ vector<pair<string,vp>>coordenadasABS = {
         {"((f l b 30) ",{"-57.5","30"}},
         {"((f l b 20) ",{"-57.5","20"}},
         {"((f l b 10) ",{"-57.5","10"}},
-        {"((f l) ",{"-57.5","0"}},
+        {"((f l 0) ",{"-57.5","0"}},
         {"((f l t 30) ",{"-57.5","-30"}},
         {"((f l t 20) ",{"-57.5","-20"}},
         {"((f l t 10) ",{"-57.5","-10"}},
@@ -306,21 +306,44 @@ vector<pair<string,vp>> rellenaContenedor(visioncampo &container, const string &
 }
 
 pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vector<pair<string,vp>>coordenadasABS){
-    float menor1=99999;
-    float menor2=99999;
+    float distancia1=99999;
+    float distancia2=99999;
+    float direccion1;
+    float direccion2;
+    float x1abs;
+    float y1abs;
+    float x2abs;
+    float y2abs;
+    string flag1;
+    string flag2;
     for(auto t: coordenadas){  
-          if(stof(t.second.first)<menor1){
-            menor2=menor1;
-            menor1=stof(t.second.first);
+          if(stof(t.second.first)<distancia1){
+            distancia2= distancia1;
+            direccion2=direccion1;
+            flag2=flag1;
+            distancia1=stof(t.second.first);
+            direccion1=stof(t.second.second);
+            flag1=t.first;
           }  
-          else if (stof(t.second.first)<menor2){
-            menor2=stof(t.second.first);
+          else if (stof(t.second.first)<distancia2){
+            distancia2=stof(t.second.first);
+            direccion2=stof(t.second.second);
+            flag2=t.first;
           }
     }
-    return {menor1,menor2};
-    // for(auto p: coordenadasABS){  
-        
-    // }
+    for(auto p: coordenadasABS){  
+        if(p.first==flag1){
+            x1abs=stof(p.second.first);
+            y1abs=stof(p.second.second);
+            
+        }
+        else if(p.first==flag2){
+            x2abs=stof(p.second.first);
+            y2abs=stof(p.second.second);
+            
+        }
+     }
+     return {x1abs,y1abs};
 }
 
 
