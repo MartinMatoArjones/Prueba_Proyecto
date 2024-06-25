@@ -137,7 +137,7 @@ struct visioncampo{
     vp bandader20mt; //frt20
     vp bandader10mt; //frt10
     vp bandader30mb; //frb30
-    vp bandader20mb; //frb20
+    vp bandader20mb; //truct visioncampo const &container,frb20
     vp bandader10mb; //frb10
     vp bandader0m; //fr0
                                 //banda exterior izquierda
@@ -154,21 +154,21 @@ struct visioncampo{
 };
 
 //------------------------------------------------------------------------------------------FUNCION QUE RELLENA EL CONTENEDOR EN CADA ITERACIÓN 
-void rellenaContenedor(visioncampo &container, const string &p) {
+void rellenaContenedor(visioncampo &container, const string &p, vector<string> &v) {
     vector<pair<string, vp*>> flagMap = {
-        {"((f l t) ", &container.cornersupizq},
-        {"((f r t) ", &container.cornersupder},
-        {"((f l b) ", &container.cornerinfizq},
-        {"((f r b) ", &container.cornerinfder},
+        //{"((f l t) ", &container.cornersupizq},
+        //{"((f r t) ", &container.cornersupder},
+        //{"((f l b) ", &container.cornerinfizq},
+        //{"((f r b) ", &container.cornerinfder},
         {"((f c t) ", &container.centrosup},
         {"((f c) ", &container.centro},
         {"((f c b) ", &container.centroinf},
-        {"((f p l t) ", &container.areasupizq},
-        {"((f p l c) ", &container.areacentroizq},
-        {"((f p l b) ", &container.areainfizq},
-        {"((f p r t) ", &container.areasupder},
-        {"((f p r c) ", &container.areacentroder},
-        {"((f p r b) ", &container.areainfder},
+        //{"((f p l t) ", &container.areasupizq},
+        //{"((f p l c) ", &container.areacentroizq},
+        //{"((f p l b) ", &container.areainfizq},
+        //{"((f p r t) ", &container.areasupder},
+        //{"((f p r c) ", &container.areacentroder},
+        //{"((f p r b) ", &container.areainfder},
         {"((f g r t) ", &container.portsupder},
         {"((f g r c) ", &container.portcentroder},
         {"((f g r b) ", &container.portinfder},
@@ -205,9 +205,7 @@ void rellenaContenedor(visioncampo &container, const string &p) {
         // Banda exterior derecha 
         {"((f r t 30) ", &container.bandader30mt},
         {"((f r t 20) ", &container.bandader20mt},
-        {"((f r t 10) ", &container.bandader10mt},
-        {"((f r b 30) ", &container.bandader30mb},
-        {"((f r b 20) ", &container.bandader20mb},
+        {"((f r t 10f ", &container.bandader20mb},
         {"((f r b 10) ", &container.bandader10mb},
         {"((f r 0) ", &container.bandader0m},
 
@@ -221,12 +219,20 @@ void rellenaContenedor(visioncampo &container, const string &p) {
         {"((f l 0) ", &container.bandaizq0m},
     };
 
+    //string auxflag="((f l t) ";
     for (const auto &flagPair : flagMap) {
         auto resultados = buscarValores(p, flagPair.first);
         if (resultados.first == "-1") {
             *(flagPair.second) = {"-1", "-1"};
         } else {
             *(flagPair.second) = resultados;
+            
+            if(auxflag == flagPair.first){ //no puedo comparar la ultima parte (los numeros)
+
+            }else{
+                auxflag = flagPair.first;
+            }
+           //if(v.size()==2)
         }
     }
 }
