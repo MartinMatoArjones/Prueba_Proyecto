@@ -8,7 +8,7 @@
 using namespace std;
 typedef pair<string,string> vp;
 //--------------------------------------------------------------------------------VECTOR DE COORDENADAS ABSOLUTAS DEL CAMPO
-/*pair<string, vp> coordenadasABS = {
+vector<pair<string,vp>>coordenadasABS = {
         {"cornersupizq", {"-52.5","-34"}},
         {"cornersupder", {"52.5","-34"}},
         {"cornerinfizq", {"-52.5","34"}},
@@ -27,9 +27,50 @@ typedef pair<string,string> vp;
         {"portinfder", {"52.5","7"}},
         {"portsupizq", {"-52.5","-7"}},
         {"portcentroizq", {"-52.5","0"}},
-        {"portinfizq", {"-52.5","7"}}
+        {"portinfizq", {"-52.5","7"}},
+        //banda superior
+        {"((f t l 50) ",{"-50","-39"}},
+        {"((f t l 40) ",{"-40","-39"}},
+        {"((f t l 30) ",{"-30","-39"}},
+        {"((f t l 20) ",{"-20","-39"}},
+        {"((f t l 10) ",{"-10","-39"}},
+        {"((f t) ",{"0","-39"}},
+        {"((f t r 50) ",{"50","-39"}},
+        {"((f t r 40) ",{"40","-39"}},
+        {"((f t r 30) ",{"30","-39"}},
+        {"((f t r 20) ",{"20","-39"}},
+        {"((f t r 10) ",{"10","-39"}},
+        //banda inferior
+        {"((f b l 50) ",{"-50","39"}},
+        {"((f b l 40) ",{"-40","39"}},
+        {"((f b l 30) ",{"-30","39"}},
+        {"((f b l 20) ",{"-20","39"}},
+        {"((f b l 10) ",{"-10","39"}},
+        {"((f b) ",{"0","39"}},
+        {"((f b r 50) ",{"50","39"}},
+        {"((f b r 40) ",{"40","39"}},
+        {"((f b r 30) ",{"30","39"}},
+        {"((f b r 20) ",{"20","39"}},
+        {"((f b r 10) ",{"10","39"}},
+        //banda derecha
+        {"((f r b 30) ",{"57.5","30"}},
+        {"((f r b 20) ",{"57.5","20"}},
+        {"((f r b 10) ",{"57.5","10"}},
+        {"((f r) ",{"57.5","0"}},
+        {"((f r t 30) ",{"57.5","-30"}},
+        {"((f r t 20) ",{"57.5","-20"}},
+        {"((f r t 10) ",{"57.5","-10"}},
+        //banda izquierda
+        {"((f l b 30) ",{"-57.5","30"}},
+        {"((f l b 20) ",{"-57.5","20"}},
+        {"((f l b 10) ",{"-57.5","10"}},
+        {"((f l) ",{"-57.5","0"}},
+        {"((f l t 30) ",{"-57.5","-30"}},
+        {"((f l t 20) ",{"-57.5","-20"}},
+        {"((f l t 10) ",{"-57.5","-10"}},
+
     };
-*/
+
 //-------------------------------------------------------------------------------------------------------FUNCIONES
 vector<string> separarPalabras(const string &palabra)
 {
@@ -154,7 +195,7 @@ struct visioncampo{
 };
 
 //------------------------------------------------------------------------------------------FUNCION QUE RELLENA EL CONTENEDOR EN CADA ITERACIÓN 
-void rellenaContenedor(visioncampo &container, const string &p, vector<string> &v) {
+vector<pair<string,vp>> rellenaContenedor(visioncampo &container, const string &p) {
     vector<pair<string, vp*>> flagMap = {
         //{"((f l t) ", &container.cornersupizq},
         //{"((f r t) ", &container.cornersupder},
@@ -205,7 +246,9 @@ void rellenaContenedor(visioncampo &container, const string &p, vector<string> &
         // Banda exterior derecha 
         {"((f r t 30) ", &container.bandader30mt},
         {"((f r t 20) ", &container.bandader20mt},
-        {"((f r t 10f ", &container.bandader20mb},
+        {"((f r t 10) ", &container.bandader20mb},
+        {"((f r b 30) ", &container.bandader30mb},
+        {"((f r b 20) ", &container.bandader20mb},
         {"((f r b 10) ", &container.bandader10mb},
         {"((f r 0) ", &container.bandader0m},
 
@@ -220,6 +263,12 @@ void rellenaContenedor(visioncampo &container, const string &p, vector<string> &
     };
 
     //string auxflag="((f l t) ";
+    vector<pair<string,vp>> bandaextizq;
+    vector<pair<string,vp>> bandaextder;
+    vector<pair<string,vp>> bandaextinf;
+    vector<pair<string,vp>> bandaextsup;
+    vector<pair<string,vp>> vacio;
+    int aux;
     for (const auto &flagPair : flagMap) {
         auto resultados = buscarValores(p, flagPair.first);
         if (resultados.first == "-1") {
@@ -227,29 +276,51 @@ void rellenaContenedor(visioncampo &container, const string &p, vector<string> &
         } else {
             *(flagPair.second) = resultados;
             
-            if(auxflag == flagPair.first){ //no puedo comparar la ultima parte (los numeros)
-
-            }else{
-                auxflag = flagPair.first;
+            if(flagPair.first.compare(0,8,"((f l t ")==0||flagPair.first.compare(0,8,"((f l 0)")==0||flagPair.first.compare(0,8,"((f l b ")==0){ //no puedo comparar la ultima parte (los numeros)
+                bandaextizq.push_back({flagPair.first,*flagPair.second});
+            }else if(flagPair.first.compare(0,8,"((f r t ")==0||flagPair.first.compare(0,8,"((f r 0)")==0||flagPair.first.compare(0,8,"((f r b ")==0){
+                bandaextder.push_back({flagPair.first,*flagPair.second});
+            }
+            else if(flagPair.first.compare(0,8,"((f b l ")==0||flagPair.first.compare(0,6,"((f b)")==0||flagPair.first.compare(0,8,"((f b r ")==0){
+                bandaextinf.push_back({flagPair.first,*flagPair.second});
+            }
+            else if(flagPair.first.compare(0,8,"((f t l ")==0||flagPair.first.compare(0,6,"((f t)")==0||flagPair.first.compare(0,8,"((f t r ")==0){
+                bandaextsup.push_back({flagPair.first,*flagPair.second});
             }
            //if(v.size()==2)
         }
     }
+    if(bandaextizq.size()>=2){
+        return bandaextizq;
+    }
+    if(bandaextder.size()>=2){
+        return bandaextder;
+    }
+    if(bandaextsup.size()>=2){
+        return bandaextsup;
+    }
+    if(bandaextinf.size()>=2){
+        return bandaextinf;
+    }
+    return vacio;
 }
 
-pair<vp,string> calcularCoordenadas(struct visioncampo const &container, string palabra){
-    struct visioncampo micontainer = container;
-    rellenaContenedor(micontainer, palabra);
-    vp aux{"-1","-1"};
-
-    int flag;
-
-    for(auto t: micontainer){
-        
+pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vector<pair<string,vp>>coordenadasABS){
+    float menor1=99999;
+    float menor2=99999;
+    for(auto t: coordenadas){  
+          if(stof(t.second.first)<menor1){
+            menor2=menor1;
+            menor1=stof(t.second.first);
+          }  
+          else if (stof(t.second.first)<menor2){
+            menor2=stof(t.second.first);
+          }
     }
-
-
-
+    return {menor1,menor2};
+    // for(auto p: coordenadasABS){  
+        
+    // }
 }
 
 
@@ -259,8 +330,9 @@ int main(){
     string palabra="(see 0 ((f r t) 50.4 -42) ((f r b) 50.4 42) ((f g r b) 38.1 11 0 0) ((g r) 37.3 0) ((f g r t) 38.1 -11) ((f p r b) 29.1 44) ((f p r c) 20.9 0 0 0) ((f p r t) 29.1 -44 0 0) ((f t r 40) 46.5 -57) ((f t r 50) 52.5 -48) ((f b r 40) 46.5 57) ((f b r 50) 52.5 48) ((f r 0) 42.5 0) ((f r t 10) 43.8 -13) ((f r t 20) 47 -25) ((f r t 30) 51.9 -35) ((f r b 10) 43.8 13) ((f r b 20) 47 25) ((f r b 30) 51.9 35) ((l r) 37.3 90))\00";
 
     struct visioncampo micontainer;
-    rellenaContenedor(micontainer, palabra);
-
+    
+    auto coordenadas = rellenaContenedor(micontainer, palabra);
+    auto xy =  calcularCoordenadas(coordenadas,coordenadasABS);
     
     return 0;
 }
