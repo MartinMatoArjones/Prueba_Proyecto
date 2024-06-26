@@ -33,45 +33,45 @@ vector<pair<string,vp>>coordenadasABS = {
         {"portcentroizq", {"-52.5","0"}},
         {"portinfizq", {"-52.5","7"}},
         // //banda superior
-        // {"((f t l 50) ",{"-50","-39"}},
-        // {"((f t l 40) ",{"-40","-39"}},
-        // {"((f t l 30) ",{"-30","-39"}},
-        // {"((f t l 20) ",{"-20","-39"}},
-        // {"((f t l 10) ",{"-10","-39"}},
-        // {"((f t) ",{"0","-39"}},
-        // {"((f t r 50) ",{"50","-39"}},
-        // {"((f t r 40) ",{"40","-39"}},
-        // {"((f t r 30) ",{"30","-39"}},
-        // {"((f t r 20) ",{"20","-39"}},
-        // {"((f t r 10) ",{"10","-39"}},
+        {"((f t l 50) ",{"-50","-39"}},
+        {"((f t l 40) ",{"-40","-39"}},
+        {"((f t l 30) ",{"-30","-39"}},
+        {"((f t l 20) ",{"-20","-39"}},
+        {"((f t l 10) ",{"-10","-39"}},
+        {"((f t) ",{"0","-39"}},
+        {"((f t r 50) ",{"50","-39"}},
+        {"((f t r 40) ",{"40","-39"}},
+        {"((f t r 30) ",{"30","-39"}},
+        {"((f t r 20) ",{"20","-39"}},
+        {"((f t r 10) ",{"10","-39"}},
         // //banda inferior
-        // {"((f b l 50) ",{"-50","39"}},
-        // {"((f b l 40) ",{"-40","39"}},
-        // {"((f b l 30) ",{"-30","39"}},
-        // {"((f b l 20) ",{"-20","39"}},
-        // {"((f b l 10) ",{"-10","39"}},
-        // {"((f b) ",{"0","39"}},
-        // {"((f b r 50) ",{"50","39"}},
-        // {"((f b r 40) ",{"40","39"}},
-        // {"((f b r 30) ",{"30","39"}},
-        // {"((f b r 20) ",{"20","39"}},
-        // {"((f b r 10) ",{"10","39"}},
+        {"((f b l 50) ",{"-50","39"}},
+        {"((f b l 40) ",{"-40","39"}},
+        {"((f b l 30) ",{"-30","39"}},
+        {"((f b l 20) ",{"-20","39"}},
+        {"((f b l 10) ",{"-10","39"}},
+        {"((f b) ",{"0","39"}},
+        {"((f b r 50) ",{"50","39"}},
+        {"((f b r 40) ",{"40","39"}},
+        {"((f b r 30) ",{"30","39"}},
+        {"((f b r 20) ",{"20","39"}},
+        {"((f b r 10) ",{"10","39"}},
         // //banda derecha
-        // {"((f r b 30) ",{"57.5","30"}},
-        // {"((f r b 20) ",{"57.5","20"}},
-        // {"((f r b 10) ",{"57.5","10"}},
+        {"((f r b 30) ",{"57.5","30"}},
+        {"((f r b 20) ",{"57.5","20"}},
+        {"((f r b 10) ",{"57.5","10"}},
         {"((f r 0) ",{"57.5","0"}},
-        // {"((f r t 30) ",{"57.5","-30"}},
-        // {"((f r t 20) ",{"57.5","-20"}},
+        {"((f r t 30) ",{"57.5","-30"}},
+        {"((f r t 20) ",{"57.5","-20"}},
         {"((f r t 10) ",{"57.5","-10"}},
         // //banda izquierda
-        // {"((f l b 30) ",{"-57.5","30"}},
-        // {"((f l b 20) ",{"-57.5","20"}},
-        // {"((f l b 10) ",{"-57.5","10"}},
-        // {"((f l 0) ",{"-57.5","0"}},
-        // {"((f l t 30) ",{"-57.5","-30"}},
-        // {"((f l t 20) ",{"-57.5","-20"}},
-        // {"((f l t 10) ",{"-57.5","-10"}},
+        {"((f l b 30) ",{"-57.5","30"}},
+        {"((f l b 20) ",{"-57.5","20"}},
+        {"((f l b 10) ",{"-57.5","10"}},
+        {"((f l 0) ",{"-57.5","0"}},
+        {"((f l t 30) ",{"-57.5","-30"}},
+        {"((f l t 20) ",{"-57.5","-20"}},
+        {"((f l t 10) ",{"-57.5","-10"}},
 
     };
 
@@ -97,6 +97,34 @@ vector<string> separarPalabras(const string &palabra)
     }
     resultado.push_back(aux); // última palabra
     return resultado;
+}
+
+vector<pair<string,pair<float,float>>> buscarMenores(vector<pair<string,vp>> p){
+    float distancia1=99999;
+    float distancia2=99999;
+    float direccion1;
+    float direccion2;
+    string flag1;
+    string flag2;
+    for(auto t: p){  
+          if(stof(t.second.first)<distancia1){
+            distancia2= distancia1;
+            direccion2=direccion1;
+            flag2=flag1;
+            distancia1=stof(t.second.first);
+            direccion1=stof(t.second.second);
+            flag1=t.first;
+          }  
+          else if (stof(t.second.first)<distancia2){
+            distancia2=stof(t.second.first);
+            direccion2=stof(t.second.second);
+            flag2=t.first;
+          }
+    }
+    vector<pair<string,pair<float,float>>> a ;
+    a.push_back({flag1,{distancia1,direccion1}});
+    a.push_back({flag2,{distancia2,direccion2}});
+    return a;
 }
 
 pair<string, string> buscarValores(const std::string &input, const std::string &inicio) {
@@ -294,26 +322,61 @@ pair<float,float>  rellenaContenedor(visioncampo &container, const string &p) {
            //if(v.size()==2)
         }
     }
+    float sumaizq=9999999;
+    float sumader=9999999;
+    float sumasup=9999999;
+    float sumainf=9999999;
+    vector<pair<string,pair<float,float>>> menoresizq;
+    vector<pair<string,pair<float,float>>> menoresder;
+    vector<pair<string,pair<float,float>>> menoressup;
+    vector<pair<string,pair<float,float>>> menoresinf;
+    vector<float> sumas;
     if(bandaextizq.size()>=2){
-        auto xy =  calcularCoordenadas(bandaextizq,coordenadasABS,false);
-        return xy;
+        menoresizq = buscarMenores(bandaextizq);
+        sumaizq=menoresizq[0].second.first+menoresizq[1].second.first;
     }
     if(bandaextder.size()>=2){
-        auto xy =  calcularCoordenadas(bandaextder,coordenadasABS,false);
-        return xy;
+        menoresder = buscarMenores(bandaextizq);
+        sumader=menoresder[0].second.first+menoresder[1].second.first;
     }
     if(bandaextsup.size()>=2){
-        auto xy =  calcularCoordenadas(bandaextsup,coordenadasABS,true);
-        return xy;
+        menoressup = buscarMenores(bandaextizq);
+        sumasup=menoressup[0].second.first+menoressup[1].second.first;
     }
     if(bandaextinf.size()>=2){
-        auto xy =  calcularCoordenadas(bandaextinf,coordenadasABS,true);
-        return xy;
+        menoresinf = buscarMenores(bandaextizq);
+        sumainf=menoresinf[0].second.first+menoresinf[1].second.first;
     }
+    sumas.push_back(sumaizq);
+    sumas.push_back(sumader);
+    sumas.push_back(sumasup);
+    sumas.push_back(sumainf);
+
+    float distancia1=99999;
+    for(auto t: sumas){  
+          if(t<distancia1){
+            distancia1=t;
+          }  
+
+    }
+    if(distancia1==sumaizq){
+        auto xy = calcularCoordenadas(menoresizq,coordenadasABS,false);
+    }
+    if(distancia1==sumader){
+        auto xy = calcularCoordenadas(menoresder,coordenadasABS,false);
+    }
+    if(distancia1==sumasup){
+        auto xy = calcularCoordenadas(menoressup,coordenadasABS,false);
+    }
+    if(distancia1==sumainf){
+        auto xy = calcularCoordenadas(menoresinf,coordenadasABS,false);
+    }
+
+
     return vacio;
 }
 
-pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vector<pair<string,vp>>coordenadasABS, bool horizontales){
+pair<float,float> calcularCoordenadas(vector<pair<string,pair<float,float>>> coordenadas, vector<pair<string,vp>>coordenadasABS, bool horizontales){
     float distancia1=99999;
     float distancia2=99999;
     float direccion1;
@@ -327,17 +390,17 @@ pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vecto
     string flag1;
     string flag2;
     for(auto t: coordenadas){  
-          if(stof(t.second.first)<distancia1){
+          if(t.second.first<distancia1){
             distancia2= distancia1;
             direccion2=direccion1;
             flag2=flag1;
-            distancia1=stof(t.second.first);
-            direccion1=stof(t.second.second);
+            distancia1=t.second.first;
+            direccion1=t.second.second;
             flag1=t.first;
           }  
-          else if (stof(t.second.first)<distancia2){
-            distancia2=stof(t.second.first);
-            direccion2=stof(t.second.second);
+          else if (t.second.first<distancia2){
+            distancia2=t.second.first;
+            direccion2=t.second.second;
             flag2=t.first;
           }
     }
@@ -356,12 +419,13 @@ pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vecto
      float diferencia=(x1abs-x2abs)+(y1abs-y2abs);
      float aux=(distancia1 * sin(fabs((direccion1 - direccion2)*pi/180))) / diferencia;
      float c = asin((distancia1 * sin(fabs((direccion1 - direccion2)*pi/180))) / diferencia);
+     float beta= (pi/2-c);
      if (horizontales){
-        xabs=x2abs-distancia2*cos(c);
-        yabs=c*cos((pi/2)-c);
+        xabs=x2abs-distancia2*sin(beta);
+        yabs=y2abs-distancia2*cos(beta);
      } else{
-        xabs=c*sin(c);
-        yabs=y2abs-distancia2*cos(c);
+        xabs=x2abs-distancia2*cos(beta);
+        yabs=y2abs-distancia2*sin(beta);
      }
      return {xabs,yabs};
      
@@ -371,7 +435,7 @@ pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vecto
 
 
 int main(){
-    string palabra="(see 0 ((f r t) 50.4 -42) ((f r b) 50.4 42) ((f g r b) 38.1 11 0 0) ((g r) 37.3 0) ((f g r t) 38.1 -11) ((f p r b) 29.1 44) ((f p r c) 20.9 0 0 0) ((f p r t) 29.1 -44 0 0) ((f t r 40) 46.5 -57) ((f t r 50) 52.5 -48) ((f b r 40) 46.5 57) ((f b r 50) 52.5 48) ((f r 0) 42.5 0) ((f r t 10) 43.8 -13) ((f r t 20) 47 -25) ((f r t 30) 51.9 -35) ((f r b 10) 43.8 13) ((f r b 20) 47 25) ((f r b 30) 51.9 35) ((l r) 37.3 90))\00";
+    string palabra="(see 85 ((f l b) 26.6 -18) ((f g l b) 26 43 -0 0) ((g l) 30 55) ((f p l b) 6 12 0 0) ((f b l 40) 21.5 -49 0 0) ((f b l 50) 27.7 -30 0 0) ((f l 0) 34.1 49) ((f l b 10) 29.4 33 -0 0) ((f l b 20) 27.4 13) ((f l b 30) 29.4 -7 0 0) ((l l) 23.1 -77))\00";
 
     struct visioncampo micontainer;
     
