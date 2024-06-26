@@ -3,10 +3,14 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include <math.h>
+#include <cmath>
+#define pi 3.14159
 
 using namespace std;
 typedef pair<string,string> vp;
+
+pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vector<pair<string,vp>>coordenadasABS, bool horizontales);
+
 //--------------------------------------------------------------------------------VECTOR DE COORDENADAS ABSOLUTAS DEL CAMPO
 vector<pair<string,vp>>coordenadasABS = {
         // {"cornersupizq", {"-52.5","-34"}},
@@ -29,45 +33,45 @@ vector<pair<string,vp>>coordenadasABS = {
         {"portcentroizq", {"-52.5","0"}},
         {"portinfizq", {"-52.5","7"}},
         // //banda superior
-        {"((f t l 50) ",{"-50","-39"}},
-        {"((f t l 40) ",{"-40","-39"}},
-        {"((f t l 30) ",{"-30","-39"}},
-        {"((f t l 20) ",{"-20","-39"}},
-        {"((f t l 10) ",{"-10","-39"}},
-        {"((f t) ",{"0","-39"}},
-        {"((f t r 50) ",{"50","-39"}},
-        {"((f t r 40) ",{"40","-39"}},
-        {"((f t r 30) ",{"30","-39"}},
-        {"((f t r 20) ",{"20","-39"}},
-        {"((f t r 10) ",{"10","-39"}},
-        //banda inferior
-        {"((f b l 50) ",{"-50","39"}},
-        {"((f b l 40) ",{"-40","39"}},
-        {"((f b l 30) ",{"-30","39"}},
-        {"((f b l 20) ",{"-20","39"}},
-        {"((f b l 10) ",{"-10","39"}},
-        {"((f b) ",{"0","39"}},
-        {"((f b r 50) ",{"50","39"}},
-        {"((f b r 40) ",{"40","39"}},
-        {"((f b r 30) ",{"30","39"}},
-        {"((f b r 20) ",{"20","39"}},
-        {"((f b r 10) ",{"10","39"}},
-        //banda derecha
-        {"((f r b 30) ",{"57.5","30"}},
-        {"((f r b 20) ",{"57.5","20"}},
-        {"((f r b 10) ",{"57.5","10"}},
+        // {"((f t l 50) ",{"-50","-39"}},
+        // {"((f t l 40) ",{"-40","-39"}},
+        // {"((f t l 30) ",{"-30","-39"}},
+        // {"((f t l 20) ",{"-20","-39"}},
+        // {"((f t l 10) ",{"-10","-39"}},
+        // {"((f t) ",{"0","-39"}},
+        // {"((f t r 50) ",{"50","-39"}},
+        // {"((f t r 40) ",{"40","-39"}},
+        // {"((f t r 30) ",{"30","-39"}},
+        // {"((f t r 20) ",{"20","-39"}},
+        // {"((f t r 10) ",{"10","-39"}},
+        // //banda inferior
+        // {"((f b l 50) ",{"-50","39"}},
+        // {"((f b l 40) ",{"-40","39"}},
+        // {"((f b l 30) ",{"-30","39"}},
+        // {"((f b l 20) ",{"-20","39"}},
+        // {"((f b l 10) ",{"-10","39"}},
+        // {"((f b) ",{"0","39"}},
+        // {"((f b r 50) ",{"50","39"}},
+        // {"((f b r 40) ",{"40","39"}},
+        // {"((f b r 30) ",{"30","39"}},
+        // {"((f b r 20) ",{"20","39"}},
+        // {"((f b r 10) ",{"10","39"}},
+        // //banda derecha
+        // {"((f r b 30) ",{"57.5","30"}},
+        // {"((f r b 20) ",{"57.5","20"}},
+        // {"((f r b 10) ",{"57.5","10"}},
         {"((f r 0) ",{"57.5","0"}},
-        {"((f r t 30) ",{"57.5","-30"}},
-        {"((f r t 20) ",{"57.5","-20"}},
+        // {"((f r t 30) ",{"57.5","-30"}},
+        // {"((f r t 20) ",{"57.5","-20"}},
         {"((f r t 10) ",{"57.5","-10"}},
-        //banda izquierda
-        {"((f l b 30) ",{"-57.5","30"}},
-        {"((f l b 20) ",{"-57.5","20"}},
-        {"((f l b 10) ",{"-57.5","10"}},
-        {"((f l 0) ",{"-57.5","0"}},
-        {"((f l t 30) ",{"-57.5","-30"}},
-        {"((f l t 20) ",{"-57.5","-20"}},
-        {"((f l t 10) ",{"-57.5","-10"}},
+        // //banda izquierda
+        // {"((f l b 30) ",{"-57.5","30"}},
+        // {"((f l b 20) ",{"-57.5","20"}},
+        // {"((f l b 10) ",{"-57.5","10"}},
+        // {"((f l 0) ",{"-57.5","0"}},
+        // {"((f l t 30) ",{"-57.5","-30"}},
+        // {"((f l t 20) ",{"-57.5","-20"}},
+        // {"((f l t 10) ",{"-57.5","-10"}},
 
     };
 
@@ -195,7 +199,7 @@ struct visioncampo{
 };
 
 //------------------------------------------------------------------------------------------FUNCION QUE RELLENA EL CONTENEDOR EN CADA ITERACIÓN 
-vector<pair<string,vp>> rellenaContenedor(visioncampo &container, const string &p) {
+pair<float,float>  rellenaContenedor(visioncampo &container, const string &p) {
     vector<pair<string, vp*>> flagMap = {
         //{"((f l t) ", &container.cornersupizq},
         //{"((f r t) ", &container.cornersupder},
@@ -267,7 +271,7 @@ vector<pair<string,vp>> rellenaContenedor(visioncampo &container, const string &
     vector<pair<string,vp>> bandaextder;
     vector<pair<string,vp>> bandaextinf;
     vector<pair<string,vp>> bandaextsup;
-    vector<pair<string,vp>> vacio;
+    pair<float,float> vacio;
     int aux;
     for (const auto &flagPair : flagMap) {
         auto resultados = buscarValores(p, flagPair.first);
@@ -291,21 +295,25 @@ vector<pair<string,vp>> rellenaContenedor(visioncampo &container, const string &
         }
     }
     if(bandaextizq.size()>=2){
-        return bandaextizq;
+        auto xy =  calcularCoordenadas(bandaextizq,coordenadasABS,false);
+        return xy;
     }
     if(bandaextder.size()>=2){
-        return bandaextder;
+        auto xy =  calcularCoordenadas(bandaextder,coordenadasABS,false);
+        return xy;
     }
     if(bandaextsup.size()>=2){
-        return bandaextsup;
+        auto xy =  calcularCoordenadas(bandaextsup,coordenadasABS,true);
+        return xy;
     }
     if(bandaextinf.size()>=2){
-        return bandaextinf;
+        auto xy =  calcularCoordenadas(bandaextinf,coordenadasABS,true);
+        return xy;
     }
     return vacio;
 }
 
-pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vector<pair<string,vp>>coordenadasABS){
+pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vector<pair<string,vp>>coordenadasABS, bool horizontales){
     float distancia1=99999;
     float distancia2=99999;
     float direccion1;
@@ -314,6 +322,8 @@ pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vecto
     float y1abs;
     float x2abs;
     float y2abs;
+    float xabs;
+    float yabs;
     string flag1;
     string flag2;
     for(auto t: coordenadas){  
@@ -343,7 +353,18 @@ pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vecto
             
         }
      }
-     return {x1abs,y1abs};
+     float diferencia=(x1abs-x2abs)+(y1abs-y2abs);
+     float aux=(distancia1 * sin(fabs((direccion1 - direccion2)*pi/180))) / diferencia;
+     float c = asin((distancia1 * sin(fabs((direccion1 - direccion2)*pi/180))) / diferencia);
+     if (horizontales){
+        xabs=x2abs-distancia2*cos(c);
+        yabs=c*cos((pi/2)-c);
+     } else{
+        xabs=c*sin(c);
+        yabs=y2abs-distancia2*cos(c);
+     }
+     return {xabs,yabs};
+     
 }
 
 
@@ -355,7 +376,7 @@ int main(){
     struct visioncampo micontainer;
     
     auto coordenadas = rellenaContenedor(micontainer, palabra);
-    auto xy =  calcularCoordenadas(coordenadas,coordenadasABS);
+    
     
     return 0;
 }
