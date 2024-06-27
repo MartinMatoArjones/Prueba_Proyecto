@@ -9,7 +9,7 @@
 using namespace std;
 typedef pair<string,string> vp;
 
-pair<float,float> calcularCoordenadas(vector<pair<string,vp>> coordenadas, vector<pair<string,vp>>coordenadasABS, bool horizontales);
+pair<float,float> calcularCoordenadas(vector<pair<string,pair<float,float>>> flagsmascercanas,vector<pair<string,vp>> coordenadasABS);
 vector<pair<float,float>> corteCircunferencias(float a1, float a2, float R, float b1, float b2, float r);
 
 //--------------------------------------------------------------------------------VECTOR DE COORDENADAS ABSOLUTAS DEL CAMPO
@@ -296,12 +296,11 @@ pair<float,float>  rellenaContenedor(visioncampo &container, const string &p) {
     };
 
     //string auxflag="((f l t) ";
+    //se inicializa un vector para cada banda para recoger el nombre de la flag, la distancia a esta y el angulo. {"(f r b)",{"50","-10"}}
     vector<pair<string,vp>> bandaextizq;
     vector<pair<string,vp>> bandaextder;
     vector<pair<string,vp>> bandaextinf;
     vector<pair<string,vp>> bandaextsup;
-    pair<float,float> vacio;
-    int aux;
     for (const auto &flagPair : flagMap) {
         auto resultados = buscarValores(p, flagPair.first);
         if (resultados.first == "-1") {
@@ -320,117 +319,67 @@ pair<float,float>  rellenaContenedor(visioncampo &container, const string &p) {
             else if(flagPair.first.compare(0,8,"((f t l ")==0||flagPair.first.compare(0,6,"((f t)")==0||flagPair.first.compare(0,8,"((f t r ")==0){
                 bandaextsup.push_back({flagPair.first,*flagPair.second});
             }
-           //if(v.size()==2)
         }
     }
-    float sumaizq=9999999;
-    float sumader=9999999;
-    float sumasup=9999999;
-    float sumainf=9999999;
+    //se inicializan unos valores suma elevados para que no interfieran en caso de no ser utilizados
+    float sumaizq=9999999, sumader=9999999, sumasup=9999999, sumainf=9999999;
+
+    //se inicializa un vector para cada banda para recoger los 2 flags mas cercanos. [{"(f r b)",{50,10}},"(f r b 10)",{30,10}}]
     vector<pair<string,pair<float,float>>> menoresizq;
     vector<pair<string,pair<float,float>>> menoresder;
     vector<pair<string,pair<float,float>>> menoressup;
     vector<pair<string,pair<float,float>>> menoresinf;
+    //vector para almacenar la suma de la distancia de los flags cercanos. [50+30,...]
     vector<float> sumas;
     //VARIABLES PARA LAS COORDENADAS RESULTANTES DEL JUGADOR Y LOS DOS FLAGS QUE PERMITEN EL CALCULO
-    float x1abs,y1abs,x2abs,y2abs;
-    vector<pair<float,float>> v;
-    if(bandaextizq.size()>=2){
-        menoresizq = buscarMenores(bandaextizq);
-        // sumaizq=menoresizq[0].second.first+menoresizq[1].second.first;
-        for(auto v: coordenadasABS){
-            
-            if(v.first == menoresizq[0].first){
-                x1abs=stof(v.second.first);
-                y1abs=stof(v.second.second);
-            }
-            if(v.first == menoresizq[1].first){
-                x2abs=stof(v.second.first);
-                y2abs=stof(v.second.second);
-            }
-            
-        }
-        v = corteCircunferencias(x1abs,y1abs,menoresizq[0].second.first,x2abs,y2abs,menoresizq[1].second.first);
-    }
-    else if(bandaextder.size()>=2){
-        menoresder = buscarMenores(bandaextder);
-        // sumader=menoresder[0].second.first+menoresder[1].second.first;
-        for(auto v: coordenadasABS){
-            
-            if(v.first == menoresder[0].first){
-                x1abs=stof(v.second.first);
-                y1abs=stof(v.second.second);
-            }
-            if(v.first == menoresder[1].first){
-                x2abs=stof(v.second.first);
-                y2abs=stof(v.second.second);
-            }
-            
-        }
-        v = corteCircunferencias(x1abs,y1abs,menoresder[0].second.first,x2abs,y2abs,menoresder[1].second.first);
-    }
-    else if(bandaextsup.size()>=2){
-        menoressup = buscarMenores(bandaextsup);
-        // sumasup=menoressup[0].second.first+menoressup[1].second.first;
-        for(auto v: coordenadasABS){
-            
-            if(v.first == menoressup[0].first){
-                x1abs=stof(v.second.first);
-                y1abs=stof(v.second.second);
-            }
-            if(v.first == menoressup[1].first){
-                x2abs=stof(v.second.first);
-                y2abs=stof(v.second.second);
-            }
-            
-        }
-        v = corteCircunferencias(x1abs,y1abs,menoressup[0].second.first,x2abs,y2abs,menoressup[1].second.first);
-    }
-    else if(bandaextinf.size()>=2){
-        menoresinf = buscarMenores(bandaextinf);
-        //sumainf=menoresinf[0].second.first+menoresinf[1].second.first;
-        for(auto v: coordenadasABS){
-            
-            if(v.first == menoresinf[0].first){
-                x1abs=stof(v.second.first);
-                y1abs=stof(v.second.second);
-            }
-            if(v.first == menoresinf[1].first){
-                x2abs=stof(v.second.first);
-                y2abs=stof(v.second.second);
-            }
-            
-        }
-        v = corteCircunferencias(x1abs,y1abs,menoresinf[0].second.first,x2abs,y2abs,menoresinf[1].second.first);
-    }
-    // sumas.push_back(sumaizq);
-    // sumas.push_back(sumader);
-    // sumas.push_back(sumasup);
-    // sumas.push_back(sumainf);
+    pair<float,float> xy;
 
-    // float distancia1=99999;
-    // for(auto t: sumas){  
-    //       if(t<distancia1){
-    //         distancia1=t;
-    //       }  
 
-    // }
-    // if(distancia1==sumaizq){
-    //     auto xy = calcularCoordenadas(menoresizq,coordenadasABS,false);
-    // }
-    // if(distancia1==sumader){
-    //     auto xy = calcularCoordenadas(menoresder,coordenadasABS,false);
-    // }
-    // if(distancia1==sumasup){
-    //     auto xy = calcularCoordenadas(menoressup,coordenadasABS,false);
-    // }
-    // if(distancia1==sumainf){
-    //     auto xy = calcularCoordenadas(menoresinf,coordenadasABS,false);
-    // }
+    menoresizq = buscarMenores(bandaextizq); //funcion para encontrar los 2 valores de distancia mas cercanos
+    sumaizq=menoresizq[0].second.first+menoresizq[1].second.first;  //funcion para sumar ambos valores de distancia
+    menoresder = buscarMenores(bandaextder);    
+    sumader=menoresder[0].second.first+menoresder[1].second.first;
+    menoressup = buscarMenores(bandaextsup);
+    sumasup=menoressup[0].second.first+menoressup[1].second.first;
+    menoresinf = buscarMenores(bandaextinf);
+    sumainf=menoresinf[0].second.first+menoresinf[1].second.first;
 
-    if( (abs(v[0].first) > 57.5)   || (abs(v[0].second) >  39)){
-        return v[1];
-    }else {return v[0];}
+    if(bandaextizq.size()>=2){ //comprobamos que la banda tenga al menos 2 flags
+        sumas.push_back(sumaizq); //metemos el valor de la suma de las distancias en el vector sumas
+    }
+    if(bandaextder.size()>=2){
+        sumas.push_back(sumader);
+    }
+    if(bandaextsup.size()>=2){
+        sumas.push_back(sumasup);
+    }
+    if(bandaextinf.size()>=2){
+        sumas.push_back(sumainf);
+    }
+    
+
+    float distancia1=99999;
+    for(auto t: sumas){   //buscamos el valor mas pequeño de todas las sumas de distancias
+          if(t<distancia1){
+            distancia1=t;
+          }  
+
+    }
+    if(distancia1==sumaizq){ //comprobamos que el valor mas pequeño de todas las sumas de distancias coincida con nuestra banda
+         xy = calcularCoordenadas(menoresizq,coordenadasABS); //utilizamos la funcion calcularCoordenadas que incluye el uso de corteCircunferencias
+    }
+    else if(distancia1==sumader){
+       xy = calcularCoordenadas(menoresder,coordenadasABS);
+
+    }
+    else if(distancia1==sumasup){
+        xy = calcularCoordenadas(menoressup,coordenadasABS);
+    }
+    else if(distancia1==sumainf){
+        xy = calcularCoordenadas(menoresinf,coordenadasABS);
+    }
+
+    return xy;
     
 }
 
@@ -491,72 +440,33 @@ vector<pair<float,float>> corteCircunferencias(float a1, float a2, float R, floa
     return resultado;
 }
 
-// pair<float,float> calcularCoordenadas(vector<pair<string,pair<float,float>>> coordenadas, vector<pair<string,vp>>coordenadasABS, bool horizontales){
-//     float distancia1=99999;
-//     float distancia2=99999;
-//     float direccion1;
-//     float direccion2;
-//     float x1abs;
-//     float y1abs;
-//     float x2abs;
-//     float y2abs;
-//     float xabs;
-//     float yabs;
-//     string flag1;
-//     string flag2;
-//     for(auto t: coordenadas){  
-//           if(t.second.first<distancia1){
-//             distancia2= distancia1;
-//             direccion2=direccion1;
-//             flag2=flag1;
-//             distancia1=t.second.first;
-//             direccion1=t.second.second;
-//             flag1=t.first;
-//           }  
-//           else if (t.second.first<distancia2){
-//             distancia2=t.second.first;
-//             direccion2=t.second.second;
-//             flag2=t.first;
-//           }
-//     }
-//     for(auto p: coordenadasABS){  
-//         if(p.first==flag1){
-//             x1abs=stof(p.second.first);
-//             y1abs=stof(p.second.second);
+pair<float,float>  calcularCoordenadas(vector<pair<string,pair<float,float>>> flagsmascercanas,vector<pair<string,vp>> coordenadasABS){
+         float x1abs,y1abs,x2abs,y2abs; //inicializamos valores absolutos de ambos flags
+         vector<pair<float,float>> xy;
+         for(auto v: coordenadasABS){ //recorremos el vector coordenadasABS y buscamos nuestros 2 flags
             
-//         }
-//         else if(p.first==flag2){
-//             x2abs=stof(p.second.first);
-//             y2abs=stof(p.second.second);
+            if(v.first == flagsmascercanas[0].first){
+                x1abs=stof(v.second.first);
+                y1abs=stof(v.second.second);
+            }
+            if(v.first == flagsmascercanas[1].first){
+                x2abs=stof(v.second.first);
+                y2abs=stof(v.second.second);
+            }
             
-//         }
-//      }
-//     //  float diferencia=(x1abs-x2abs)+(y1abs-y2abs);
-//     //  float aux=(distancia1 * sin(fabs((direccion1 - direccion2)*pi/180))) / diferencia;
-//     //  float c = asin((distancia1 * sin(fabs((direccion1 - direccion2)*pi/180))) / diferencia);
-//     //  float beta= (pi/2-c);
-//     //  if (horizontales){
-//     //     xabs=x2abs-distancia2*sin(beta);
-//     //     yabs=y2abs-distancia2*cos(beta);
-//     //  } else{
-//     //     xabs=x2abs-distancia2*cos(beta);
-//     //     yabs=y2abs-distancia2*sin(beta);
-//     //  }
-//     //  return {xabs,yabs};
-
-//     vector<pair<float,float>> v = corteCircunferencias(x2abs,y2abs,distancia2,x1abs,y1abs,distancia1);
-    
-//     if( (abs(v[0].first) < 57.5)   || (abs(v[0].second) <  39)){
-//         return v[0];
-//     }else {return v[1];}
-// }
+        }
+        xy = corteCircunferencias(x1abs,y1abs,flagsmascercanas[0].second.first,x2abs,y2abs,flagsmascercanas[1].second.first); //utilizamos la funcion corteCircunferencias para resolver los 2 puntos de corte
+        if( (abs(xy[0].first) > 57.5)   || (abs(xy[0].second) >  39)){ //nos quedamos con el punto de corte que este dentro del campo
+        return xy[1];
+        }else {return xy[0];}
+}
 
 
 
 
 
 int main(){
-    string palabra="(see 85 ((f c b) 33.1 14) ((f l b) 83.9 29) ((f g l b) 83.9 48) ((g l) 84.8 52) ((f g l t) 86.5 57) ((f p l b) 66 38) ((f p l c) 68.7 55) ((f b 0) 35.5 6) ((f b r 10) 27.7 -5 0 0) ((f b r 20) 21.5 -24 0 0) ((f b r 30) 18.9 -51 0 0) ((f b l 10) 44.3 13) ((f b l 20) 53.5 18) ((f b l 30) 62.8 21) ((f b l 40) 72.2 23) ((f b l 50) 82.3 25) ((f l 0) 90 51) ((f l t 10) 92.8 58) ((f l b 10) 88.2 45) ((f l b 20) 87.4 39) ((f l b 30) 88.2 32) ((p VodkaJuniorsA) 60.3 39) ((l b) 22.4 39))";
+    string palabra="(see 66 ((f l b) 58.6 -19) ((f g l b) 35.2 -2) ((g l) 30 7 0 0) ((f g l t) 26 18 0 0) ((f p l b) 40.4 -33) ((f p l c) 20.9 -25 0 0) ((f p l t) 6 50 -0 0) ((f b l 20) 59.7 -51) ((f b l 30) 59.1 -42) ((f b l 40) 59.7 -32) ((f b l 50) 62.2 -23) ((f l 0) 34.1 12) ((f l t 10) 29.4 28 0 0) ((f l t 20) 27.4 48) ((f l b 10) 40.9 1) ((f l b 20) 48.4 -7) ((f l b 30) 56.8 -13) ((p VodkaJuniorsA) 40.4 -42) ((l l) 33.8 -42))";
     struct visioncampo micontainer;
     
     auto coordenadas = rellenaContenedor(micontainer, palabra);
