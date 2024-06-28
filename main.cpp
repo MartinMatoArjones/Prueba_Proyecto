@@ -11,7 +11,7 @@ typedef pair<string,string> vp;
 
 pair<float,float> calcularCoordenadas(vector<pair<string,pair<float,float>>> flagsmascercanas,vector<pair<string,vp>> coordenadasABS);
 vector<pair<float,float>> corteCircunferencias(float a1, float a2, float R, float b1, float b2, float r);
-
+float calcularAngulo(vector<pair<string,pair<float,float>>> const &flags, vector<pair<string,vp>> const &absolutas);
 //--------------------------------------------------------------------------------VECTOR DE COORDENADAS ABSOLUTAS DEL CAMPO
 vector<pair<string,vp>>coordenadasABS = {
         // {"cornersupizq", {"-52.5","-34"}},
@@ -228,7 +228,7 @@ struct visioncampo{
 };
 
 //------------------------------------------------------------------------------------------FUNCION QUE RELLENA EL CONTENEDOR EN CADA ITERACIÓN 
-pair<float,float>  rellenaContenedor(visioncampo &container, const string &p) {
+pair<float,pair<float,float>>  rellenaContenedor(visioncampo &container, const string &p) {
     vector<pair<string, vp*>> flagMap = {
         //{"((f l t) ", &container.cornersupizq},
         //{"((f r t) ", &container.cornersupder},
@@ -333,7 +333,7 @@ pair<float,float>  rellenaContenedor(visioncampo &container, const string &p) {
     vector<float> sumas;
     //VARIABLES PARA LAS COORDENADAS RESULTANTES DEL JUGADOR Y LOS DOS FLAGS QUE PERMITEN EL CALCULO
     pair<float,float> xy;
-
+    float alpha;
 
     menoresizq = buscarMenores(bandaextizq); //funcion para encontrar los 2 valores de distancia mas cercanos
     sumaizq=menoresizq[0].second.first+menoresizq[1].second.first;  //funcion para sumar ambos valores de distancia
@@ -366,20 +366,23 @@ pair<float,float>  rellenaContenedor(visioncampo &container, const string &p) {
 
     }
     if(distancia1==sumaizq){ //comprobamos que el valor mas pequeño de todas las sumas de distancias coincida con nuestra banda
-         xy = calcularCoordenadas(menoresizq,coordenadasABS); //utilizamos la funcion calcularCoordenadas que incluye el uso de corteCircunferencias
+        xy = calcularCoordenadas(menoresizq,coordenadasABS); //utilizamos la funcion calcularCoordenadas que incluye el uso de corteCircunferencias
+        alpha = calcularAngulo(menoresizq,coordenadasABS);
     }
     else if(distancia1==sumader){
-       xy = calcularCoordenadas(menoresder,coordenadasABS);
-
+        xy = calcularCoordenadas(menoresder,coordenadasABS);
+        alpha = calcularAngulo(menoresder,coordenadasABS);
     }
     else if(distancia1==sumasup){
         xy = calcularCoordenadas(menoressup,coordenadasABS);
+        alpha = calcularAngulo(menoressup,coordenadasABS);
     }
     else if(distancia1==sumainf){
         xy = calcularCoordenadas(menoresinf,coordenadasABS);
+        alpha = calcularAngulo(menoresinf,coordenadasABS);
     }
 
-    return xy;
+    return {alpha,xy};
     
 }
 
@@ -441,36 +444,88 @@ vector<pair<float,float>> corteCircunferencias(float a1, float a2, float R, floa
 }
 
 pair<float,float>  calcularCoordenadas(vector<pair<string,pair<float,float>>> flagsmascercanas,vector<pair<string,vp>> coordenadasABS){
-         float x1abs,y1abs,x2abs,y2abs; //inicializamos valores absolutos de ambos flags
-         vector<pair<float,float>> xy;
-         for(auto v: coordenadasABS){ //recorremos el vector coordenadasABS y buscamos nuestros 2 flags
-            
-            if(v.first == flagsmascercanas[0].first){
-                x1abs=stof(v.second.first);
-                y1abs=stof(v.second.second);
-            }
-            if(v.first == flagsmascercanas[1].first){
-                x2abs=stof(v.second.first);
-                y2abs=stof(v.second.second);
-            }
-            
+     float x1abs,y1abs,x2abs,y2abs; //inicializamos valores absolutos de ambos flags
+     vector<pair<float,float>> xy;
+     for(auto v: coordenadasABS){ //recorremos el vector coordenadasABS y buscamos nuestros 2 flags
+        
+        if(v.first == flagsmascercanas[0].first){  //flagsmascercanas EJEMPLO: [{"(f r b)",{50,10}},"(f r b 10)",{30,10}}]
+            x1abs=stof(v.second.first);
+            y1abs=stof(v.second.second);
         }
-        xy = corteCircunferencias(x1abs,y1abs,flagsmascercanas[0].second.first,x2abs,y2abs,flagsmascercanas[1].second.first); //utilizamos la funcion corteCircunferencias para resolver los 2 puntos de corte
-        if( (abs(xy[0].first) > 57.5)   || (abs(xy[0].second) >  39)){ //nos quedamos con el punto de corte que este dentro del campo
+        if(v.first == flagsmascercanas[1].first){
+            x2abs=stof(v.second.first);
+            y2abs=stof(v.second.second);
+        }
+        
+    }
+    xy = corteCircunferencias(x1abs,y1abs,flagsmascercanas[0].second.first,x2abs,y2abs,flagsmascercanas[1].second.first); //utilizamos la funcion corteCircunferencias para resolver los 2 puntos de corte
+    if( (abs(xy[0].first) > 57.5)   || (abs(xy[0].second) >  39)){ //nos quedamos con el punto de corte que este dentro del campo
         return xy[1];
-        }else {return xy[0];}
+    }else {return xy[0];}
+}
+
+
+//se inicializa un vector para cada banda para recoger los 2 flags mas cercanos. [{"(f r b)",{50,10}},"(f r b 10)",{30,10}}]
+
+float calcularAngulo(vector<pair<string,pair<float,float>>> const &flags, vector<pair<string,vp>> const &absolutas){
+    float alpha = 0.0; //Nuestro resultado final    
+    //Primero almacenamos los valores de los flasg cercanos
+    float x1abs,y1abs,x2abs,y2abs;
+    vector<pair<float,float>> xy_aux;
+    pair<float,float>xy,unitario,JP,JPunitario;
+    for(auto v: coordenadasABS){ //Recorremos el vector coordenadasABS y buscamos nuestros 2 flags
+        if(v.first == flags[0].first){
+            x1abs=stof(v.second.first);
+            y1abs=stof(v.second.second);
+        }
+        if(v.first == flags[1].first){
+            x2abs=stof(v.second.first);
+            y2abs=stof(v.second.second);
+        }
+    }
+    //En este punto tenemos almacenadas en las variables las posiciones de los flags absolutas
+    //Ahora calculamos las coordenadas absolutas del jugador y con eso y el ángulo con el que ve dicho flag podremos calcular el angulo de vision absoluto
+    
+    xy_aux = corteCircunferencias(x1abs,y1abs,flags[0].second.first,x2abs,y2abs,flags[1].second.first); //utilizamos la funcion corteCircunferencias para resolver los 2 puntos de corte
+    if( (abs(xy_aux[0].first) > 57.5)   || (abs(xy_aux[0].second) >  39)){ //nos quedamos con el punto de corte que este dentro del campo
+        xy= xy_aux[1];
+    }else {xy = xy_aux[0];}
+
+    //En xy almacenamos la posicion de nuestro jugador y sólo nos hará falta un flag para calcular su ángulo absoluto.
+    //flags EJEMPLO: flags = [{"(f r b)",{50,10}},"(f r b 10)",{30,10}}]
+    //Escogeremos el primero de ellos, en el ejemplo: flag = flags[0].first , distancia = flags[0].second,first , anguloBETA = flags[0].second.second
+    //Necesitamos necesariamente el BETA, x1abs , y1abs, xy.first , xy.second que corresponden a las posiciones absolutas del flag, del jugador, y el angulo con el que el jugador ve el flag escogido
+    //Nuestro vector director provisional es el (0,1) : unitario vertical
+    unitario = {0.0,1.0};
+    //Necesitamos tambien el vector que une el jugador con el flag y su direcion o vector unitario
+    JP = {x1abs-xy.first,y1abs-xy.second};
+    float moduloJP = sqrt(JP.first*JP.first+JP.second*JP.second);
+    JPunitario = {JP.first/moduloJP,JP.second/moduloJP};
+
+    //Primero sacamos el ángulo con el unitario con la formula del dot_product: A·B = x1*x2 + y1*y2 (utilizamos los unitarios)
+    float cos_angle = JPunitario.first*unitario.first+JPunitario.second*unitario.second;
+    //Asegurarse de que el valor esté dentro del rango válido para acos
+    if (cos_angle < -1.0) cos_angle = -1.0;
+    if (cos_angle > 1.0) cos_angle = 1.0;
+    float theta = acos(cos_angle); //RADIANES
+
+    //DISTINGUIMOS DOS CASOS: FLAG A LA IZQUIERDA Y FLAG A LA DERECHA DEL JUGADOR
+    if(x1abs<xy.first){ //---------------------------flag a la izquierda
+        float alpha = -theta-flags[0].second.second - pi/2;
+    }else{              //---------------------------flag a la derecha
+        float alpha = -theta-flags[0].second.second - pi/2;
+    }
+    return alpha;
 }
 
 
 
-
-
 int main(){
-    string palabra="(see 66 ((f l b) 58.6 -19) ((f g l b) 35.2 -2) ((g l) 30 7 0 0) ((f g l t) 26 18 0 0) ((f p l b) 40.4 -33) ((f p l c) 20.9 -25 0 0) ((f p l t) 6 50 -0 0) ((f b l 20) 59.7 -51) ((f b l 30) 59.1 -42) ((f b l 40) 59.7 -32) ((f b l 50) 62.2 -23) ((f l 0) 34.1 12) ((f l t 10) 29.4 28 0 0) ((f l t 20) 27.4 48) ((f l b 10) 40.9 1) ((f l b 20) 48.4 -7) ((f l b 30) 56.8 -13) ((p VodkaJuniorsA) 40.4 -42) ((l l) 33.8 -42))";
+    string palabra="(see 57 ((f c) 50.9 0) ((f c t) 61.6 -34) ((f c b) 61.6 34) ((f r t) 108.9 -18) ((f r b) 108.9 18) ((f g r b) 103.5 4) ((g r) 103.5 0) ((f g r t) 103.5 -4) ((G) 1.5 180) ((f p r b) 89.1 13) ((f p r c) 87.4 0) ((f p r t) 89.1 -13) ((f p l b) 25 53 0 0) ((f p l c) 15 0 0 0) ((f p l t) 25 -53 0 0) ((f t 0) 64.1 -37) ((f t r 10) 72.2 -33) ((f t r 20) 80.6 -29) ((f t r 30) 90 -26) ((f t r 40) 99.5 -23) ((f t r 50) 107.8 -21) ((f t l 10) 56.8 -44) ((f t l 20) 49.9 -52) ((f b 0) 64.1 37) ((f b r 10) 72.2 33) ((f b r 20) 80.6 29) ((f b r 30) 90 26) ((f b r 40) 99.5 23) ((f b r 50) 107.8 21) ((f b l 10) 56.8 44) ((f b l 20) 49.9 52) ((f r 0) 108.9 0) ((f r t 10) 108.9 -5) ((f r t 20) 109.9 -10) ((f r t 30) 112.2 -15) ((f r b 10) 108.9 5) ((f r b 20) 109.9 10) ((f r b 30) 112.2 15) ((b) 49.4 0) ((l r) 103.5 90))";
     struct visioncampo micontainer;
     
     auto coordenadas = rellenaContenedor(micontainer, palabra);
-    cout<<coordenadas.first<<" "<<coordenadas.second<<endl;
+    cout<<"La posicion de mi jugador es: "<<coordenadas.second.first<<" "<<coordenadas.second.second<<" y el angulo con el que mira: "<<coordenadas.first<<endl;
     
     return 0;
 }
