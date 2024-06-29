@@ -8,6 +8,13 @@
 
 using namespace std;
 typedef pair<string,string> vp;
+float congruencia_2pi(double angulo) {
+    float resultado = fmod(angulo, 2 * M_PI); // Calcula el resto de angulo dividido por 2π
+    if (resultado < 0) {
+        resultado += 2 * M_PI; // Asegura que el resultado sea siempre positivo
+    }
+    return resultado;
+}
 
 pair<float,float> calcularCoordenadas(vector<pair<string,pair<float,float>>> flagsmascercanas,vector<pair<string,vp>> coordenadasABS);
 vector<pair<float,float>> corteCircunferencias(float a1, float a2, float R, float b1, float b2, float r);
@@ -495,12 +502,16 @@ float calcularAngulo(vector<pair<string,pair<float,float>>> const &flags, vector
     //flags EJEMPLO: flags = [{"(f r b)",{50,10}},"(f r b 10)",{30,10}}]
     //Escogeremos el primero de ellos, en el ejemplo: flag = flags[0].first , distancia = flags[0].second,first , anguloBETA = flags[0].second.second
     //Necesitamos necesariamente el BETA, x1abs , y1abs, xy.first , xy.second que corresponden a las posiciones absolutas del flag, del jugador, y el angulo con el que el jugador ve el flag escogido
-    //Nuestro vector director provisional es el (0,1) : unitario vertical
-    unitario = {0.0,1.0};
+    //Nuestro vector director provisional es el (1,0) : unitario eje x
+    unitario = {1.0,0.0};
     //Necesitamos tambien el vector que une el jugador con el flag y su direcion o vector unitario
     JP = {x1abs-xy.first,y1abs-xy.second};
     float moduloJP = sqrt(JP.first*JP.first+JP.second*JP.second);
     JPunitario = {JP.first/moduloJP,JP.second/moduloJP};
+    //A beta siempre le aplicamos la operación módulo----------------------------------Y PUEDE QUE *(-1) SI VIENE NEGADA
+    float beta = flags[0].second.second;
+    beta = beta*(pi/180); //cambio a radianes
+    beta = congruencia_2pi(beta);
 
     //Primero sacamos el ángulo con el unitario con la formula del dot_product: A·B = x1*x2 + y1*y2 (utilizamos los unitarios)
     float cos_angle = JPunitario.first*unitario.first+JPunitario.second*unitario.second;
@@ -509,23 +520,25 @@ float calcularAngulo(vector<pair<string,pair<float,float>>> const &flags, vector
     if (cos_angle > 1.0) cos_angle = 1.0;
     float theta = acos(cos_angle); //RADIANES
 
-    //DISTINGUIMOS DOS CASOS: FLAG A LA IZQUIERDA Y FLAG A LA DERECHA DEL JUGADOR
-    if(x1abs<xy.first){ //---------------------------flag a la izquierda
-        float alpha = -theta-flags[0].second.second - pi/2;
-    }else{              //---------------------------flag a la derecha
-        float alpha = -theta-flags[0].second.second - pi/2;
+    //DISTINGUIMOS DOS CASOS: FLAG ARRIBA O ABAJO DEL JUGADOR
+    if(y1abs>xy.second){ //---------------------------flag abajo
+        alpha = -(theta - beta);
+    }else{               //---------------------------flag arriba
+        alpha = (theta + beta);
     }
+    alpha = congruencia_2pi(alpha); //hacemos el modulo para sacar solo angulos positivos
+    alpha = alpha * 180/M_PI;
     return alpha;
 }
 
 
 
 int main(){
-    string palabra="(see 57 ((f c) 50.9 0) ((f c t) 61.6 -34) ((f c b) 61.6 34) ((f r t) 108.9 -18) ((f r b) 108.9 18) ((f g r b) 103.5 4) ((g r) 103.5 0) ((f g r t) 103.5 -4) ((G) 1.5 180) ((f p r b) 89.1 13) ((f p r c) 87.4 0) ((f p r t) 89.1 -13) ((f p l b) 25 53 0 0) ((f p l c) 15 0 0 0) ((f p l t) 25 -53 0 0) ((f t 0) 64.1 -37) ((f t r 10) 72.2 -33) ((f t r 20) 80.6 -29) ((f t r 30) 90 -26) ((f t r 40) 99.5 -23) ((f t r 50) 107.8 -21) ((f t l 10) 56.8 -44) ((f t l 20) 49.9 -52) ((f b 0) 64.1 37) ((f b r 10) 72.2 33) ((f b r 20) 80.6 29) ((f b r 30) 90 26) ((f b r 40) 99.5 23) ((f b r 50) 107.8 21) ((f b l 10) 56.8 44) ((f b l 20) 49.9 52) ((f r 0) 108.9 0) ((f r t 10) 108.9 -5) ((f r t 20) 109.9 -10) ((f r t 30) 112.2 -15) ((f r b 10) 108.9 5) ((f r b 20) 109.9 10) ((f r b 30) 112.2 15) ((b) 49.4 0) ((l r) 103.5 90))";
+    string palabra="(see 16 ((f c) 36.2 58 0 0) ((f c b) 61.6 30) ((f r b) 58.6 -21) ((f l b) 98.5 58) ((f g r b) 35.2 -38) ((g r) 30 -47 0 0) ((f g r t) 26 -59) ((f p r b) 40.4 -7) ((f p r c) 20.9 -15 0 0) ((f p l b) 77.5 60) ((f b 0) 66 28) ((f b r 10) 62.2 20) ((f b r 20) 59.7 11) ((f b r 30) 59.1 1) ((f b r 40) 59.7 -8) ((f b r 50) 62.2 -17) ((f b l 10) 71.5 35) ((f b l 20) 77.5 42) ((f b l 30) 83.9 47) ((f b l 40) 91.8 51) ((f b l 50) 99.5 55) ((f r 0) 34.1 -53 0 0) ((f r b 10) 40.9 -41) ((f r b 20) 48.4 -33) ((f r b 30) 56.8 -28) ((b) 36.6 58) ((p VodkaJuniorsA) 73.7 58) ((p VodkaJuniorsB) 40.4 1) ((l b) 54.1 -89))";
     struct visioncampo micontainer;
     
     auto coordenadas = rellenaContenedor(micontainer, palabra);
-    cout<<"La posicion de mi jugador es: "<<coordenadas.second.first<<" "<<coordenadas.second.second<<" y el angulo con el que mira: "<<coordenadas.first<<endl;
-    
+    cout<<"La posicion de mi jugador es: "<<coordenadas.second.first<<" , "<<coordenadas.second.second<<" y el angulo con el que mira: "<<coordenadas.first<<"\n\n"<<endl;
+
     return 0;
 }
