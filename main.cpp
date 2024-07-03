@@ -167,6 +167,35 @@ pair<string, string> buscarValores(const std::string &input, const std::string &
     return {"-1", "-1"};
 }
 
+std::tuple<std::string, std::string, std::string> buscarValoresJugador(const std::string &input, const std::string &equipo) {
+size_t pos = input.find("((p \"" + equipo);
+    if (pos == std::string::npos) {
+        return {"-1", "-1", "-1"};
+    }
+
+    // Encontrar el inicio de los valores después del nombre del equipo
+    pos = input.find(")", pos) + 1;
+    std::string subcadena = input.substr(pos);
+    std::vector<std::string> palabras = separarPalabras(subcadena);
+
+    // Inicializar los valores de retorno
+    std::string numeroJugador = "-1";
+    std::string valor1 = "-1";
+    std::string valor2 = "-1";
+
+    numeroJugador=input.at(pos+2);
+    // Buscar el número del jugador y los valores
+    if (palabras.size() >= 2) {
+        // Si el primer valor es un número, es el número del jugador
+        if (palabras[0].find_first_not_of("0123456789") == std::string::npos) {
+            valor1 = palabras[0];
+            valor2 = palabras[1];
+    }
+
+    return {numeroJugador, valor1, valor2};
+}
+}
+
 //------------------------------------------------------------------------------------------CONTENEDOR DE COORDENADAS INSTANTANEAS DEL JUGADOR (SOLO LAS QUE VE)
 
 struct visioncampo{
@@ -532,13 +561,24 @@ float calcularAngulo(vector<pair<string,pair<float,float>>> const &flags, vector
 }
 
 
-
 int main(){
-    string palabra="(see 16 ((f c) 36.2 58 0 0) ((f c b) 61.6 30) ((f r b) 58.6 -21) ((f l b) 98.5 58) ((f g r b) 35.2 -38) ((g r) 30 -47 0 0) ((f g r t) 26 -59) ((f p r b) 40.4 -7) ((f p r c) 20.9 -15 0 0) ((f p l b) 77.5 60) ((f b 0) 66 28) ((f b r 10) 62.2 20) ((f b r 20) 59.7 11) ((f b r 30) 59.1 1) ((f b r 40) 59.7 -8) ((f b r 50) 62.2 -17) ((f b l 10) 71.5 35) ((f b l 20) 77.5 42) ((f b l 30) 83.9 47) ((f b l 40) 91.8 51) ((f b l 50) 99.5 55) ((f r 0) 34.1 -53 0 0) ((f r b 10) 40.9 -41) ((f r b 20) 48.4 -33) ((f r b 30) 56.8 -28) ((b) 36.6 58) ((p VodkaJuniorsA) 73.7 58) ((p VodkaJuniorsB) 40.4 1) ((l b) 54.1 -89))";
+    string palabra="(see 16 ((f c) 36.2 58 0 0) ((f c b) 61.6 30) ((f r b) 58.6 -21) ((f l b) 98.5 58) ((f g r b) 35.2 -38) ((g r) 30 -47 0 0) ((f g r t) 26 -59) ((f p r b) 40.4 -7) ((f p r c) 20.9 -15 0 0) ((f p l b) 77.5 60) ((f b 0) 66 28) ((f b r 10) 62.2 20) ((f b r 20) 59.7 11) ((f b r 30) 59.1 1) ((f b r 40) 59.7 -8) ((f b r 50) 62.2 -17) ((f b l 10) 71.5 35) ((f b l 20) 77.5 42) ((f b l 30) 83.9 47) ((f b l 40) 91.8 51) ((f b l 50) 99.5 55) ((f r 0) 34.1 -53 0 0) ((f r b 10) 40.9 -41) ((f r b 20) 48.4 -33) ((f r b 30) 56.8 -28) ((b) 36.6 58) ((p \"VodkaJuniorsA\" 11) 10 3 0 0 0 0) ((p \"VodkaJuniorsB\") 40.4 1) ((l b) 54.1 -89))";
+    // cout<<palabra<<endl;
     struct visioncampo micontainer;
     
-    auto coordenadas = rellenaContenedor(micontainer, palabra);
-    cout<<"La posicion de mi jugador es: "<<coordenadas.second.first<<" , "<<coordenadas.second.second<<" y el angulo con el que mira: "<<coordenadas.first<<"\n\n"<<endl;
+    // auto coordenadas = rellenaContenedor(micontainer, palabra);
+    // cout<<"La posicion de mi jugador es: "<<coordenadas.second.first<<" , "<<coordenadas.second.second<<" y el angulo con el que mira: "<<coordenadas.first<<"\n\n"<<endl;
+
+
+    if (palabra.find("((p ") != -1)
+        {
+            string prefix = "((p \"VodkaJuniorsA\" 9) ";
+            auto jugadorcercano = buscarValoresJugador(palabra, "VodkaJuniorsA");
+            cout << get<0>(jugadorcercano)<< " " << get<1>(jugadorcercano) << " " << get<2>(jugadorcercano)<< endl;
+            if (palabra.compare(palabra.find("((p "), prefix.size(), prefix) == 0)
+            {
+            }
+        }
 
     return 0;
 }
